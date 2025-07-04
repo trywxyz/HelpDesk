@@ -1,6 +1,7 @@
 HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -31,3 +32,71 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+# =============================
+# BUILD / DEPENDÊNCIAS
+# =============================
+/target/
+/out/
+/build/
+*.class
+*.jar
+*.war
+*.log
+
+# =============================
+# IntelliJ IDEA
+# =============================
+.idea/
+
+# =============================
+# SISTEMAS OPERACIONAIS
+# =============================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+.Trashes
+*.swp
+*.swo
+*~
+
+# =============================
+# SPRING BOOT / CONFIG
+# =============================
+# Arquivos de ambiente local (dev)
+.env
+.env.local
+application-dev.properties
+application-local.properties
+application-test.properties
+*.secret
+
+# =============================
+# LOGS
+# =============================
+logs/
+hs_err_pid*
+
+# =============================
+# H2 DATABASE (em disco — se mudar o modo)
+/*.h2.db
+/*.mv.db
+/*.trace.db
+
+# =============================
+# BACKUP / TEMP
+# =============================
+*.bak
+*.tmp
+*.old
+*.orig
+*.rej
+
+# =============================
+# TEST OUTPUT
+# =============================
+/test-output/
+/coverage/
+
