@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuários - Sistema Help Desk</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f6f8fa;
+          margin: 0;
+          padding: 2rem;
+        }
+
+        .container {
+          max-width: 800px;
+          margin: auto;
+          background: #fff;
+          padding: 2rem;
+          border-radius: 6px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+          text-align: center;
+          color: #333;
+          margin-bottom: 1.5rem;
+        }
+
+        form label {
+          display: block;
+          margin-top: 1rem;
+          color: #555;
+        }
+
+        input {
+          width: 100%;
+          padding: 0.6rem;
+          margin-top: 0.2rem;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+
+        button {
+          margin-top: 1.5rem;
+          padding: 0.7rem;
+          width: 100%;
+          background-color: #2e7d32;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-weight: bold;
+          cursor: pointer;
+        }
+
+        button:hover {
+          background-color: #1b5e20;
+        }
+
+        table {
+          width: 100%;
+          margin-top: 2rem;
+          border-collapse: collapse;
+        }
+
+        th, td {
+          padding: 0.8rem;
+          border: 1px solid #ddd;
+          text-align: left;
+        }
+
+        th {
+          background-color: #4caf50;
+          color: white;
+        }
+
+        tr:nth-child(even) {
+          background-color: #f9f9f9;
+        }
+
+        @media (max-width: 600px) {
+          .container {
+            padding: 1rem;
+          }
+
+          th, td {
+            font-size: 0.9rem;
+          }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Cadastro de Usuários</h1>
+
+    <form id="usuario-form">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+
+        <label for="setor">Setor:</label>
+        <input type="text" id="setor" required>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th><th>Nome</th><th>Email</th><th>Setor</th>
+        </tr>
+        </thead>
+        <tbody id="usuarios-tabela"></tbody>
+    </table>
+</div>
+
+<script>
+    const form = document.getElementById('usuario-form');
+    const tabela = document.getElementById('usuarios-tabela');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const usuario = {
+        nome: document.getElementById('nome').value,
+        email: document.getElementById('email').value,
+        setor: document.getElementById('setor').value
+      };
+
+      const response = await fetch('/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(usuario)
+      });
+
+      if (response.ok) {
+        alert('Usuário cadastrado com sucesso!');
+        form.reset();
+        carregarUsuarios();
+      } else {
+        alert('Erro ao cadastrar usuário.');
+      }
+    });
+
+    async function carregarUsuarios() {
+      const response = await fetch('/usuarios');
+      const usuarios = await response.json();
+
+      tabela.innerHTML = '';
+      usuarios.forEach(u => {
+        const row = `<tr><td>${u.id}</td><td>${u.nome}</td><td>${u.email}</td><td>${u.setor}</td></tr>`;
+        tabela.innerHTML += row;
+      });
+    }
+
+    carregarUsuarios();
+</script>
+</body>
+</html>

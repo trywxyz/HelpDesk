@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Chamados - Sistema Help Desk</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f6f8fa;
+          margin: 0;
+          padding: 2rem;
+        }
+
+        .container {
+          max-width: 900px;
+          margin: auto;
+          background: #fff;
+          padding: 2rem;
+          border-radius: 6px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+          text-align: center;
+          color: #333;
+          margin-bottom: 1.5rem;
+        }
+
+        form label {
+          display: block;
+          margin-top: 1rem;
+          color: #555;
+        }
+
+        input, select, textarea {
+          width: 100%;
+          padding: 0.6rem;
+          margin-top: 0.2rem;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+
+        textarea {
+          resize: vertical;
+        }
+
+        button {
+          margin-top: 1.5rem;
+          padding: 0.7rem;
+          width: 100%;
+          background-color: #1976d2;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-weight: bold;
+          cursor: pointer;
+        }
+
+        button:hover {
+          background-color: #125ea4;
+        }
+
+        table {
+          width: 100%;
+          margin-top: 2rem;
+          border-collapse: collapse;
+        }
+
+        th, td {
+          padding: 0.8rem;
+          border: 1px solid #ddd;
+          text-align: left;
+        }
+
+        th {
+          background-color: #1565c0;
+          color: white;
+        }
+
+        tr:nth-child(even) {
+          background-color: #f9f9f9;
+        }
+
+        @media (max-width: 600px) {
+          .container {
+            padding: 1rem;
+          }
+
+          th, td {
+            font-size: 0.9rem;
+          }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Cadastro de Chamados</h1>
+
+    <form id="chamado-form">
+        <label for="titulo">Título:</label>
+        <input type="text" id="titulo" required>
+
+        <label for="descricao">Descrição:</label>
+        <textarea id="descricao" rows="3" required></textarea>
+
+        <label for="prioridade">Prioridade:</label>
+        <select id="prioridade" required>
+            <option value="Baixa">Baixa</option>
+            <option value="Média">Média</option>
+            <option value="Alta">Alta</option>
+        </select>
+
+        <label for="status">Status:</label>
+        <select id="status" required>
+            <option value="Aberto">Aberto</option>
+            <option value="Em andamento">Em andamento</option>
+            <option value="Fechado">Fechado</option>
+        </select>
+
+        <label for="usuario-select">Usuário responsável:</label>
+        <select id="usuario-select" required></select>
+
+        <button type="submit">Cadastrar Chamado</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Prioridade</th>
+            <th>Status</th>
+            <th>Usuário</th>
+            <th>Data</th>
+        </tr>
+        </thead>
+        <tbody id="chamados-tabela"></tbody>
+    </table>
+</div>
+
+<script>
+    const form = document.getElementById('chamado-form');
+    const tabela = document.getElementById('chamados-tabela');
+    const usuarioSelect = document.getElementById('usuario-select');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const chamado = {
+        titulo: document.getElementById('titulo').value,
+        descricao: document.getElementById('descricao').value,
+        prioridade: document.getElementById('prioridade').value,
+        status: document.getElementById('status').value,
+        usuario: { id: usuarioSelect.value }
+      };
+
+      const response = await fetch('/chamados', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(chamado)
+      });
+
+      if (response.ok) {
+        alert('Chamado cadastrado com sucesso!');
+        form.reset();
+        carregarChamados();
+      } else {
+        alert('Erro ao cadastrar chamado.');
+      }
+    });
+
+    async function carregarUsuarios() {
+      const res = await fetch('/usuarios');
+      const usuarios = await res.json();
+      usuarioSelect.innerHTML = '';
+
+      usuarios.forEach(u => {
+        const option = document.createElement('option');
+        option.value = u.id;
+        option.textContent = `${u.nome} (${u.setor})`;
+        usuarioSelect.appendChild(option);
+      });
+    }
+
+    async function carregarChamados() {
+      const res = await fetch('/chamados');
+      const chamados = await res.json();
+      tabela.innerHTML = '';
+
+      chamados.forEach(c => {
+        const row = `
+          <tr>
+            <td>${c.id}</td>
+            <td>${c.titulo}</td>
+            <td>${c.prioridade}</td>
+            <td>${c.status}</td>
+            <td>${c.usuario ? c.usuario.nome : 'N/A'}</td>
+            <td>${c.dataAbertura?.replace('T', ' ').substring(0, 16)}</td>
+          </tr>
+        `;
+        tabela.innerHTML += row;
+      });
+    }
+
+    carregarUsuarios();
+    carregarChamados();
+</script>
+</body>
+</html>
