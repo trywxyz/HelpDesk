@@ -1,12 +1,11 @@
 package com.task.helpdesk.model;
 
 import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
 @Entity
-public class Suporte {
+public class Support {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +19,6 @@ public class Suporte {
 
     @OneToOne
     private Chamado chamado;
-
-    // Getters e Setters
 
     public Long getId() {
         return id;

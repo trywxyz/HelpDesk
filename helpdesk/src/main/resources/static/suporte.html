@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Requests Answering</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f6f8;
+          margin: 0;
+          padding: 2rem;
+        }
+
+        .container {
+          max-width: 900px;
+          margin: auto;
+          background-color: #fff;
+          padding: 2rem;
+          border-radius: 6px;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+          text-align: center;
+          color: #333;
+        }
+
+        button {
+          padding: 0.5rem 1rem;
+          background-color: #1976d2;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+
+        button:hover {
+          background-color: #125ea4;
+        }
+
+        table {
+          width: 100%;
+          margin-top: 1rem;
+          border-collapse: collapse;
+        }
+
+        th, td {
+          padding: 0.8rem;
+          border: 1px solid #ddd;
+        }
+
+        th {
+          background-color: #1565c0;
+          color: white;
+        }
+
+        tr:nth-child(even) {
+          background-color: #f9f9f9;
+        }
+
+        .form-modal {
+          display: none;
+          margin-top: 2rem;
+          border-top: 1px solid #ccc;
+          padding-top: 1rem;
+        }
+
+        label {
+          display: block;
+          margin-top: 1rem;
+        }
+
+        textarea, select {
+          width: 100%;
+          padding: 0.6rem;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+
+        .submit-btn {
+          margin-top: 1rem;
+          width: 100%;
+        }
+
+        #descricao {
+          background-color: #f0f0f0;
+          padding: 1rem;
+          border-radius: 4px;
+          margin-top: 0.5rem;
+        }
+
+        #toggle-btn {
+          margin-bottom: 1rem;
+          background-color: #424242;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Requests Answering</h1>
+
+    <button id="toggle-btn" onclick="alternarChamados()">
+        See resolved requests
+    </button>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>User</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="chamados-tabela"></tbody>
+    </table>
+
+    <div class="form-modal" id="form-section">
+        <h3>Register Request</h3>
+
+        <input type="hidden" id="chamado-id">
+
+        <p><strong>Describe:</strong></p>
+        <p id="descricao"></p>
+
+        <label for="tecnico">Responsable User:</label>
+        <select id="tecnico"></select>
+
+        <label for="mensagem">Solution Mensage:</label>
+        <textarea id="mensagem" rows="4" placeholder="Describe the solution..." required></textarea>
+
+        <button class="submit-btn" onclick="enviarAtendimento()">Saved Request</button>
+    </div>
+</div>
+
+<script>
+    let mostrarFechados = false;
+
+    const tabela = document.getElementById('chamados-tabela');
+    const tecnicoSelect = document.getElementById('tecnico');
+    const formSection = document.getElementById('form-section');
+    const toggleBtn = document.getElementById('toggle-btn');
+
+    async function carregarChamados() {
+      const res = await fetch('/chamados');
+      const chamados = await res.json();
+
+      tabela.innerHTML = '';
+      chamados.forEach(c => {
+        if (!mostrarFechados && c.status === 'Closed') return;
+
+        tabela.innerHTML += `
+          <tr>
+            <td>${c.id}</td>
+            <td>${c.titulo}</td>
+            <td>${c.status}</td>
+            <td>${c.usuario?.nome ?? 'N/A'}</td>
+            <td>
+              ${
+                c.status !== 'Closed'
+                  ? `<button onclick="resolverChamado(${c.id})">Resolved Request</button>`
+                  : `<span style="color:green;">✅ Resolved</span>`
+              }
+            </td>
+          </tr>
+        `;
+      });
+
+      toggleBtn.textContent = mostrarFechados
+        ? 'See requets in open'
+        : 'See request resolved';
+    }
+
+    function alternarChamados() {
+      mostrarFechados = !mostrarFechados;
+      carregarChamados();
+    }
+
+    async function carregarTecnicos() {
+      const res = await fetch('/usuarios');
+      const usuarios = await res.json();
+
+      tecnicoSelect.innerHTML = '';
+      usuarios.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = `${u.nome} (${u.setor})`;
+        tecnicoSelect.appendChild(opt);
+      });
+    }
+
+    async function resolverChamado(id) {
+      document.getElementById('chamado-id').value = id;
+      formSection.style.display = 'block';
+
+      try {
+        const res = await fetch(`/chamados/${id}`);
+        if (!res.ok) throw new Error("Request not found");
+
+        const chamado = await res.json();
+        document.getElementById('descricao').textContent = chamado.descricao;
+      } catch (err) {
+        alert("Error fetching request description");
+        console.error(err);
+      }
+    }
+
+    async function enviarAtendimento() {
+      const chamadoId = document.getElementById('chamado-id').value;
+      const tecnicoId = tecnicoSelect.value;
+      const mensagem = document.getElementById('mensagem').value;
+
+      const suporte = {
+        mensagem,
+        tecnico: { id: tecnicoId },
+        chamado: { id: chamadoId }
+      };
+
+      const res = await fetch('/suporte', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(suporte)
+      });
+
+      if (res.ok) {
+        alert("Resolve request with sucess");
+        formSection.style.display = 'none';
+        document.getElementById('mensagem').value = '';
+        carregarChamados();
+      } else {
+        alert("Error saved request");
+      }
+    }
+
+    carregarChamados();
+    carregarTecnicos();
+</script>
+</body>
+</html>

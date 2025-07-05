@@ -5,9 +5,11 @@ import com.task.helpdesk.model.User;
 import com.task.helpdesk.repository.ChamadoRepository;
 import com.task.helpdesk.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/chamados")
@@ -33,4 +35,12 @@ public class ChamadoController {
     public List<Chamado> listarChamados() {
         return chamadoRepository.findAll();
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Chamado> buscarChamadoPorId(@PathVariable Long id) {
+        Optional<Chamado> chamado = chamadoRepository.findById(id);
+        return chamado.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }

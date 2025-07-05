@@ -102,7 +102,7 @@
         <label for="setor">Sector:</label>
         <input type="text" id="setor" required>
 
-        <button type="submit">Send</button>
+        <button type="submit">Send your user to issues support</button>
     </form>
 
     <table>
@@ -113,6 +113,19 @@
         </thead>
         <tbody id="usuarios-tabela"></tbody>
     </table>
+
+    <button onclick="window.location.href='chamados.html'" style="
+        background-color: #424242;
+        color: white;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 1rem;
+        ">
+        Go to requests page and create your first request
+    </button>
+
 </div>
 
 <script>
@@ -134,11 +147,11 @@
       });
 
       if (response.ok) {
-        alert('Usuário cadastrado com sucesso!');
+        alert('Success register user!');
         form.reset();
         carregarUsuarios();
       } else {
-        alert('Erro ao cadastrar usuário.');
+        alert('Error register user.');
       }
     });
 

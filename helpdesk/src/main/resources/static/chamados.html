@@ -105,22 +105,22 @@
 
         <label for="prioridade">Priority:</label>
         <select id="prioridade" required>
-            <option value="Baixa">Low</option>
-            <option value="Média">Middle</option>
-            <option value="Alta">High</option>
+            <option value="Low">Low</option>
+            <option value="Middle">Middle</option>
+            <option value="High">High</option>
         </select>
 
         <label for="status">Status:</label>
         <select id="status" required>
-            <option value="Aberto">Open</option>
-            <option value="Em andamento">In review</option>
-            <option value="Fechado">Closed</option>
+            <option value="Open">Open</option>
+            <option value="In review">In review</option>
+            <option value="Closed">Closed</option>
         </select>
 
         <label for="usuario-select">Responsible user:</label>
         <select id="usuario-select" required></select>
 
-        <button type="submit">Register Issue</button>
+        <button type="submit">Register Issue to support</button>
     </form>
 
     <table>
@@ -136,6 +136,17 @@
         </thead>
         <tbody id="chamados-tabela"></tbody>
     </table>
+    <button onclick="window.location.href='user.html'" style="
+        background-color: #424242;
+        color: white;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 1rem;
+        ">
+        Go to back to home user
+    </button>
 </div>
 
 <script>
@@ -161,11 +172,11 @@
       });
 
       if (response.ok) {
-        alert('Chamado cadastrado com sucesso!');
+        alert('Request register with sucess!');
         form.reset();
         carregarChamados();
       } else {
-        alert('Erro ao cadastrar chamado.');
+        alert('Error register request.');
       }
     });
 
